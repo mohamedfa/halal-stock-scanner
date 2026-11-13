@@ -1,0 +1,34 @@
+name: Halal Stock Scanner
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 10-14 * * 0-4'
+      timezone: 'Africa/Cairo'
+    - cron: '*/30 16-23 * * 1-5'
+      timezone: 'Africa/Cairo'
+
+jobs:
+  scan_and_alert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run EGX33 & US Halal Stock Scanner
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: python scanner.py
